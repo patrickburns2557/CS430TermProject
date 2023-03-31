@@ -70,7 +70,9 @@ yTest = LabelBinarizer().fit_transform(yTest)
 # Model training
 ################################
 #Create and train a decision tree to the training data
-DecisionModel = DecisionTreeClassifier()
+#Limit the maximimum depth of the tree to 12 because that seems to produce the highest
+# accuracy when tested from max depth 1 to max depth 40
+DecisionModel = DecisionTreeClassifier(max_depth=12)
 DecisionModel = DecisionModel.fit(xTrain, yTrain)
 
 
@@ -81,8 +83,7 @@ DecisionModel = DecisionModel.fit(xTrain, yTrain)
 yPred = DecisionModel.predict(xTest)
 
 #Compare the predicted results to the actual results in the test data to find the accuracy of the model
-print("Accuracy:", metrics.accuracy_score(yTest, yPred))
-
+print("Accuracy: ", metrics.accuracy_score(yTest, yPred))
 
 
 ################################
@@ -90,8 +91,11 @@ print("Accuracy:", metrics.accuracy_score(yTest, yPred))
 ################################
 #Create an SVG image file of the decision tree
 print("Creating decision tree image...")
+print("(May take some time)")
+outputFile = "DecisionTreeOutput.svg"
 dot_data = StringIO()
 export_graphviz(DecisionModel, out_file=dot_data, filled=True, rounded=True, special_characters=True, class_names=['0', '1'])
 graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
-graph.write_svg("DecisionTreeOutput.svg")
+graph.write_svg(outputFile)
 Image(graph.create_svg())
+print("Image saved to: " + outputFile)
