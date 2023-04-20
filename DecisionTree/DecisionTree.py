@@ -34,6 +34,7 @@ try:
     yTest = dataTest.label
 except (IOError, OSError, FileNotFoundError) as e:
     print("Failed to load data, exiting.")
+    print(os.getcwd())
     exit()
 
 
