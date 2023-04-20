@@ -45,4 +45,4 @@ model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy']
 y_train = np.where(y_train == ' >50K', 1, 0)
 y_test = np.where(y_test == ' >50K', 1, 0)
 # Traing the model
-model.fit(x_train, y_train, epochs=10, batch_size=32, validation_data=(x_test, y_test))
+final = model.fit(x_train, y_train, epochs=20, batch_size=32, validation_data=(x_test, y_test))
