@@ -25,13 +25,16 @@ ct = ColumnTransformer(
         ('num', StandardScaler(), [0, 2, 4, 10, 11, 12]),
         ('cat', OneHotEncoder(), [1, 3, 5, 6, 7, 8, 9, 13])
     ])
-x = ct.fit_transform(x)
 
-train_data = data[:len(train_data)]
-test_data = data[len(train_data):]
+x_train = train_data.iloc[:, :-1]
+y_train = train_data.iloc[:, -1]
+x_test = test_data.iloc[:, :-1]
+y_test = test_data.iloc[:, -1]
 
-# Spliting data into train and test sets
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+x_train = ct.fit_transform(x_train)
+x_test = ct.transform(x_test)
+
+
 
 # Building neural network model
 model = Sequential()
@@ -41,8 +44,14 @@ model.add(Dense(units=1, activation='sigmoid'))
 
 # Compiling model
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-# Converting the end result to either over 50 k or under 50 k
+
 y_train = np.where(y_train == ' >50K', 1, 0)
 y_test = np.where(y_test == ' >50K', 1, 0)
 # Traing the model
 final = model.fit(x_train, y_train, epochs=20, batch_size=32, validation_data=(x_test, y_test))
+
+# Evaluate the model on the test data
+test_loss, test_acc = model.evaluate(x_test, y_test, verbose=2)
+
+# Print the test accuracy
+print('Test accuracy:', test_acc)
