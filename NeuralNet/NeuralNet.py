@@ -25,12 +25,12 @@ ct = ColumnTransformer(
         ('num', StandardScaler(), [0, 2, 4, 10, 11, 12]),
         ('cat', OneHotEncoder(), [1, 3, 5, 6, 7, 8, 9, 13])
     ])
-
+# Training all of the data
 x_train = train_data.iloc[:, :-1]
 y_train = train_data.iloc[:, -1]
 x_test = test_data.iloc[:, :-1]
 y_test = test_data.iloc[:, -1]
-
+# Transforming the x data
 x_train = ct.fit_transform(x_train)
 x_test = ct.transform(x_test)
 
@@ -44,7 +44,7 @@ model.add(Dense(units=1, activation='sigmoid'))
 
 # Compiling model
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-
+#converting
 y_train = np.where(y_train == ' >50K', 1, 0)
 y_test = np.where(y_test == ' >50K', 1, 0)
 # Traing the model
