@@ -1,7 +1,6 @@
 from sklearn.naive_bayes import GaussianNB, MultinomialNB, ComplementNB, BernoulliNB, CategoricalNB
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.metrics import accuracy_score
-from sklearn.utils.validation import column_or_1d
 import numpy as np
 import pandas as pd
 
@@ -24,10 +23,7 @@ X_train = train.drop(columns=['income'])
 y_train = train['income']
 
 X_test = test.drop(columns=['income'])
-y_test = test['income'].values.ravel()
-
-y_train = column_or_1d(y_train, warn=False)
-y_test = column_or_1d(y_test, warn=False)
+y_test = test['income']
 
 # synchronize the native-country category between the training and test data. Some categories appear in the training
 # data that don't appear in the test data, so this will ensure both datasets have the same categories
@@ -48,13 +44,52 @@ for val in text_values:
 y_train = LabelBinarizer().fit_transform(y_train)
 y_test = LabelBinarizer().fit_transform(y_test)
 
-# train the model using Gaussian Naive-Bayes
-NaiveBayes = GaussianNB()
-NaiveBayes = NaiveBayes.fit(X_train, y_train)
+
+# Gaussian Naive-Bayes
+gaussian = GaussianNB()
+gaussian = gaussian.fit(X_train, y_train)
 
 # make predictions about the test data
-y_pred = NaiveBayes.predict(X_test)
+y_pred = gaussian.predict(X_test)
 
 # test and report the accuracy of the predictions
-accuracy = accuracy_score(y_test, y_pred) * 100
-print(f'Accuracy: {accuracy:.2f}')
+accuracyGauss = accuracy_score(y_test, y_pred) * 100
+print("Prediction Accuracy:")
+print(f'Gaussian NB: {accuracyGauss:.2f}%')
+
+# train the model using Multinomial Naive-Bayes
+multinomial = MultinomialNB()
+multinomial = multinomial.fit(X_train, y_train)
+
+# make predictions about the test data
+y_pred = multinomial.predict(X_test)
+
+# test and report the accuracy of the predictions
+accuracyMult = accuracy_score(y_test, y_pred) * 100
+print(f'Multinomial NB: {accuracyMult:.2f}%')
+
+###################################################
+
+# Bernoulli Naive-Bayes
+bernoulli = BernoulliNB()
+bernoulli = bernoulli.fit(X_train, y_train)
+
+# make predictions about the test data
+y_pred = bernoulli.predict(X_test)
+
+# test and report the accuracy of the predictions
+accuracyBernoulli = accuracy_score(y_test, y_pred) * 100
+print(f'Bernoulli NB: {accuracyBernoulli:.2f}%')
+
+##################################################
+
+# Complement Naive-Bayes
+complement = ComplementNB()
+complement = complement.fit(X_train, y_train)
+
+# make predictions about the test data
+y_pred = complement.predict(X_test)
+
+# test and report the accuracy of the predictions
+accuracyComp = accuracy_score(y_test, y_pred) * 100
+print(f'Complement NB: {accuracyComp:.2f}%')
