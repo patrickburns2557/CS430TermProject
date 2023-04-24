@@ -1,5 +1,5 @@
-from sklearn.naive_bayes import GaussianNB, MultinomialNB, ComplementNB, BernoulliNB, CategoricalNB
-from sklearn.preprocessing import LabelBinarizer, KBinsDiscretizer, StandardScaler
+from sklearn.naive_bayes import GaussianNB, MultinomialNB, ComplementNB, BernoulliNB
+from sklearn.preprocessing import LabelBinarizer, KBinsDiscretizer
 from sklearn.metrics import accuracy_score
 import numpy as np
 from itertools import product
