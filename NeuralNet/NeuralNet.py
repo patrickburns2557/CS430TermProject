@@ -38,8 +38,8 @@ x_test = ct.transform(x_test)
 
 # Building neural network model
 model = Sequential()
-model.add(Dense(units=64, activation='relu', input_dim=x_train.shape[1]))
-model.add(Dense(units=32, activation='relu'))
+model.add(Dense(units=64, activation='elu', input_dim=x_train.shape[1]))
+model.add(Dense(units=32, activation='elu'))
 model.add(Dense(units=1, activation='sigmoid'))
 
 # Compiling model
