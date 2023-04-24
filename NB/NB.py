@@ -1,9 +1,12 @@
-from sklearn.naive_bayes import GaussianNB, MultinomialNB, ComplementNB, BernoulliNB, CategoricalNB
-from sklearn.preprocessing import LabelBinarizer
+from sklearn.naive_bayes import GaussianNB, MultinomialNB, ComplementNB, BernoulliNB
+from sklearn.preprocessing import LabelBinarizer, KBinsDiscretizer
 from sklearn.metrics import accuracy_score
-from sklearn.utils.validation import column_or_1d
-import numpy as np
 import pandas as pd
+
+outfile = "NB_output.txt"
+
+f = open(outfile, "w")
+f.write("Naive-Bayes\n\n")
 
 
 # input filenames
@@ -24,10 +27,7 @@ X_train = train.drop(columns=['income'])
 y_train = train['income']
 
 X_test = test.drop(columns=['income'])
-y_test = test['income'].values.ravel()
-
-y_train = column_or_1d(y_train, warn=False)
-y_test = column_or_1d(y_test, warn=False)
+y_test = test['income']
 
 # synchronize the native-country category between the training and test data. Some categories appear in the training
 # data that don't appear in the test data, so this will ensure both datasets have the same categories
@@ -39,8 +39,8 @@ X_test["native-country"] = pd.Series(X_test["native-country"], dtype=dtype)
 # in order to make Naive-Bayes work with text data, we have to do some preprocessing. This uses Pandas' get_dummies
 # method to enable one-hot encoding of the test data. One-hot encoding represents categorical data as binary vectors,
 # where each vector element corresponds to a unique category and only one element is set to 1
-text_values = ['workclass', 'education', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'native-country']
-for val in text_values:
+categorical_features = ['workclass', 'education', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'native-country']
+for val in categorical_features:
     X_train = pd.get_dummies(X_train, prefix=[val], columns=[val], drop_first=True)
     X_test = pd.get_dummies(X_test, prefix=[val], columns=[val], drop_first=True)
 
@@ -48,13 +48,82 @@ for val in text_values:
 y_train = LabelBinarizer().fit_transform(y_train)
 y_test = LabelBinarizer().fit_transform(y_test)
 
-# train the model using Gaussian Naive-Bayes
-NaiveBayes = GaussianNB()
-NaiveBayes = NaiveBayes.fit(X_train, y_train)
+print("Prediction Accuracy:")
+f.write("Prediction Accuracy:\n")
+###################################################
+
+# Gaussian Naive-Bayes
+
+# train the model
+gaussian = GaussianNB()
+gaussian = gaussian.fit(X_train, y_train)
 
 # make predictions about the test data
-y_pred = NaiveBayes.predict(X_test)
+y_pred = gaussian.predict(X_test)
 
 # test and report the accuracy of the predictions
-accuracy = accuracy_score(y_test, y_pred) * 100
-print(f'Accuracy: {accuracy:.2f}')
+accuracyGauss = accuracy_score(y_test, y_pred) * 100
+print(f'Gaussian NB: {accuracyGauss:.2f}%')
+f.write(f'Gaussian NB: {accuracyGauss:.2f}%\n')
+
+##################################################
+
+# Multinomial NB
+
+# train the model
+multinomial = MultinomialNB()
+multinomial = multinomial.fit(X_train, y_train)
+
+# make predictions about the test data
+y_pred = multinomial.predict(X_test)
+
+# test and report the accuracy of the predictions
+accuracyMult = accuracy_score(y_test, y_pred) * 100
+print(f'Multinomial NB: {accuracyMult:.2f}%')
+f.write(f'Multinomial NB: {accuracyMult:.2f}%\n')
+
+##################################################
+
+# Complement Naive-Bayes
+
+# train the model
+complement = ComplementNB()
+complement = complement.fit(X_train, y_train)
+
+# make predictions about the test data
+y_pred = complement.predict(X_test)
+
+# test and report the accuracy of the predictions
+accuracyComp = accuracy_score(y_test, y_pred) * 100
+print(f'Complement NB: {accuracyComp:.2f}%')
+f.write(f'Complement NB: {accuracyComp:.2f}%\n')
+
+###################################################
+
+# Bernoulli Naive-Bayes
+
+# Bernoulli NB expects binary features, so some additional preprocessing is needed. The one-hot encoding for categorical
+# values is good enough, but we need to discretize the continuous numeric values. This is done using KBinsDiscretizer
+# using the k-means strategy, which uses k-means to cluster the data into discrete bins. This method, along with the
+# number of bins, was selected using trial and error
+
+# discretize the continuous features
+continuous_features = ['age', 'fnlwgt', 'education-num', 'capital-gain', 'capital-loss', 'hours-per-week']
+discretizer = KBinsDiscretizer(n_bins=3, encode='ordinal', strategy='kmeans')
+
+X_train[continuous_features] = discretizer.fit_transform(X_train[continuous_features])
+X_test[continuous_features] = discretizer.transform(X_test[continuous_features])
+
+# train the model using Bernoulli NB
+bernoulli = BernoulliNB()
+bernoulli = bernoulli.fit(X_train, y_train)
+
+# make predictions about the test data
+y_pred = bernoulli.predict(X_test)
+
+# test and report the accuracy of the predictions
+accuracyBernoulli = accuracy_score(y_test, y_pred) * 100
+print(f'Bernoulli NB: {accuracyBernoulli:.2f}%')
+f.write(f'Bernoulli NB: {accuracyBernoulli:.2f}%\n')
+
+f.close()
