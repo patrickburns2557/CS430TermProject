@@ -1,9 +1,12 @@
 from sklearn.naive_bayes import GaussianNB, MultinomialNB, ComplementNB, BernoulliNB
 from sklearn.preprocessing import LabelBinarizer, KBinsDiscretizer
 from sklearn.metrics import accuracy_score
-import numpy as np
-from itertools import product
 import pandas as pd
+
+outfile = "NB_output.txt"
+
+f = open(outfile, "w")
+f.write("Naive-Bayes\n\n")
 
 
 # input filenames
@@ -46,7 +49,7 @@ y_train = LabelBinarizer().fit_transform(y_train)
 y_test = LabelBinarizer().fit_transform(y_test)
 
 print("Prediction Accuracy:")
-
+f.write("Prediction Accuracy:\n")
 ###################################################
 
 # Gaussian Naive-Bayes
@@ -61,6 +64,7 @@ y_pred = gaussian.predict(X_test)
 # test and report the accuracy of the predictions
 accuracyGauss = accuracy_score(y_test, y_pred) * 100
 print(f'Gaussian NB: {accuracyGauss:.2f}%')
+f.write(f'Gaussian NB: {accuracyGauss:.2f}%\n')
 
 ##################################################
 
@@ -76,6 +80,7 @@ y_pred = multinomial.predict(X_test)
 # test and report the accuracy of the predictions
 accuracyMult = accuracy_score(y_test, y_pred) * 100
 print(f'Multinomial NB: {accuracyMult:.2f}%')
+f.write(f'Multinomial NB: {accuracyMult:.2f}%\n')
 
 ##################################################
 
@@ -91,6 +96,7 @@ y_pred = complement.predict(X_test)
 # test and report the accuracy of the predictions
 accuracyComp = accuracy_score(y_test, y_pred) * 100
 print(f'Complement NB: {accuracyComp:.2f}%')
+f.write(f'Complement NB: {accuracyComp:.2f}%\n')
 
 ###################################################
 
@@ -118,3 +124,6 @@ y_pred = bernoulli.predict(X_test)
 # test and report the accuracy of the predictions
 accuracyBernoulli = accuracy_score(y_test, y_pred) * 100
 print(f'Bernoulli NB: {accuracyBernoulli:.2f}%')
+f.write(f'Bernoulli NB: {accuracyBernoulli:.2f}%\n')
+
+f.close()
