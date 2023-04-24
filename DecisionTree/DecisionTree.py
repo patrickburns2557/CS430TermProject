@@ -73,10 +73,13 @@ yTest = LabelBinarizer().fit_transform(yTest)
 #Create and train a decision tree to the training data
 #Test limiting the max depth from 1 to 60, saving all the accuracies along the way to plot.
 #Save the best accuracy to be printed at the end.
+outFile = open("DecisionTreeAccuracy.txt", "w")
+outFile.write("Decision Tree Accuracy\n===========================\n")
 maxDepths = []
 accuracies = []
 bestDepth = 0
 bestAccuracy = 0
+
 for i in range(1, 61):
     DecisionModel = DecisionTreeClassifier(max_depth=i)
     DecisionModel = DecisionModel.fit(xTrain, yTrain)
@@ -84,7 +87,8 @@ for i in range(1, 61):
     yPred = DecisionModel.predict(xTest)
     accuracy = metrics.accuracy_score(yTest, yPred)
     print("Max Depth: {:2d}  Accuracy: {:.8f}".format(i, accuracy))
-    
+    outFile.write("Max Depth: {:2d}  Accuracy: {:.8f}\n".format(i, accuracy))
+
     #Append to the lists to be graphed
     maxDepths.append(i)
     accuracies.append(accuracy)
@@ -109,13 +113,17 @@ yPred = DecisionModel.predict(xTest)
 print()
 print("Best Max Depth: " + str(bestDepth))
 print("Best Accuracy: " + str(metrics.accuracy_score(yTest, yPred)))
+outFile.write("\n")
+outFile.write("Best Max Depth: " + str(bestDepth) + "\n")
+outFile.write("Best Accuracy: " + str(metrics.accuracy_score(yTest, yPred)) + "\n")
+outFile.close()
 
 #Plot depth vs. accuracy
 plt.plot(maxDepths, accuracies, c="green", label="Accuracy")
 plt.xlabel("Maximum Depth")
 plt.ylabel("Accuracy")
 plt.scatter(bestDepth, bestAccuracy, marker="o", color="black", linewidths=0.5)
-plt.text(bestDepth, bestAccuracy, "({}, {})".format(bestDepth, bestAccuracy))
+plt.text(bestDepth, bestAccuracy, "({}, {:.6f})".format(bestDepth, bestAccuracy))
 plt.legend(loc="best")
 plt.title("Maximum Depth vs. Decision Tree Accuracy")
 print("\nClose the plt window and the decision tree will be saved to an SVG file.")
