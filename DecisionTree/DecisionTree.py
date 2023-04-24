@@ -1,13 +1,13 @@
 import os
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import train_test_split
 from sklearn import metrics
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.tree import export_graphviz
 from six import StringIO
 from IPython.display import Image
 import pydotplus
+import matplotlib.pyplot as plt
 #Disable panda warning about chained assignments modifying the original table
 pd.options.mode.chained_assignment = None
 
@@ -71,20 +71,55 @@ yTest = LabelBinarizer().fit_transform(yTest)
 # Model training
 ################################
 #Create and train a decision tree to the training data
-#Limit the maximimum depth of the tree to 12 because that seems to produce the highest
-# accuracy when tested from max depth 1 to max depth 40
-DecisionModel = DecisionTreeClassifier(max_depth=12)
-DecisionModel = DecisionModel.fit(xTrain, yTrain)
+#Test limiting the max depth from 1 to 60, saving all the accuracies along the way to plot.
+#Save the best accuracy to be printed at the end.
+maxDepths = []
+accuracies = []
+bestDepth = 0
+bestAccuracy = 0
+for i in range(1, 61):
+    DecisionModel = DecisionTreeClassifier(max_depth=i)
+    DecisionModel = DecisionModel.fit(xTrain, yTrain)
+    
+    yPred = DecisionModel.predict(xTest)
+    accuracy = metrics.accuracy_score(yTest, yPred)
+    print("Max Depth: {:2d}  Accuracy: {:.8f}".format(i, accuracy))
+    
+    #Append to the lists to be graphed
+    maxDepths.append(i)
+    accuracies.append(accuracy)
+    
+    #If the accuracy of the current depth was better than the previous best, update accordingly
+    if accuracy > bestAccuracy:
+        bestDepth = i
+        bestAccuracy = accuracy
 
 
 ################################
 # Predictions and Accuracy
 ################################
+#Use the best depth found above for the accuracy to be printed
+DecisionModel = DecisionTreeClassifier(max_depth=bestDepth)
+DecisionModel = DecisionModel.fit(xTrain, yTrain)
+
 #Create a prediction of the results of the test data, based on the model created above
 yPred = DecisionModel.predict(xTest)
 
 #Compare the predicted results to the actual results in the test data to find the accuracy of the model
-print("Accuracy: ", metrics.accuracy_score(yTest, yPred))
+print()
+print("Best Max Depth: " + str(bestDepth))
+print("Best Accuracy: " + str(metrics.accuracy_score(yTest, yPred)))
+
+#Plot depth vs. accuracy
+plt.plot(maxDepths, accuracies, c="green", label="Accuracy")
+plt.xlabel("Maximum Depth")
+plt.ylabel("Accuracy")
+plt.scatter(bestDepth, bestAccuracy, marker="o", color="black", linewidths=0.5)
+plt.text(bestDepth, bestAccuracy, "({}, {})".format(bestDepth, bestAccuracy))
+plt.legend(loc="best")
+plt.title("Maximum Depth vs. Decision Tree Accuracy")
+print("\nClose the plt window and the decision tree will be saved to an SVG file.")
+plt.show()
 
 
 ################################
@@ -100,3 +135,4 @@ graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
 graph.write_svg(outputFile)
 Image(graph.create_svg())
 print("Image saved to: " + outputFile)
+
