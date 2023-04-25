@@ -1,0 +1,7 @@
+Naive-Bayes
+
+Prediction Accuracy:
+Gaussian NB: 78.86%
+Multinomial NB: 77.72%
+Complement NB: 77.72%
+Bernoulli NB: 81.23%
